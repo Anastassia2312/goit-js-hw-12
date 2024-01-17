@@ -62,33 +62,26 @@ img {
 }
 
 .loader {
+  margin: 0 auto;
   width: 48px;
   height: 48px;
+  border: 5px solid #a29a9a;
+  border-bottom-color: #4e75ff;
   border-radius: 50%;
-  display: none;
-  margin: 0 auto;
-  margin-top: 108px;
-  border-top: 4px solid #1c1b1b;
-  border-right: 4px solid transparent;
+  display: block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
-.loader::after {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border-left: 4px solid #ff3d00;
-  border-bottom: 4px solid transparent;
-  animation: rotation 0.5s linear infinite reverse;
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
-.hidden {
-  display: block;
-}
+
 @keyframes rotation {
   0% {
     transform: rotate(0deg);

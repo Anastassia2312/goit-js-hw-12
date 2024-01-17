@@ -14,8 +14,6 @@ const loadMoreBtn = document.querySelector('.fetch-more-button');
 
 let page = 1;
 let perPage = 20;
-//const totalHits = response.data.totalHits;
-//const totalPages = Math.ceil(totalHits / perPage);
 
 const instance = axios.create({
   baseURL: 'https://pixabay.com/api/',
@@ -33,10 +31,13 @@ function hideLoader() {
   loader.style.display = 'none';
 }
 //loader.classList.add('hidden');
+
 loadMoreBtn.addEventListener('click', async () => {
-  let posts = await searchImages();
+  let { hits, totalHits } = await searchImages();
   renderImages(hits);
-  if (response.totalHits === 0) {
+
+  const totalPages = Math.ceil(totalHits / perPage);
+  if (page > totalPages) {
     loadMoreBtn.style.display = 'none';
     loadMoreBtn.textContent =
       "We're sorry, but you've reached the end of search results.";
@@ -63,8 +64,8 @@ async function searchImages(params) {
     if (page > 1) {
       loadMoreBtn.classList.add('visible-btn');
     }
-    //console.log(response);
     hideLoader();
+
     return response.data;
 
     //loader.classList.add('hidden');
@@ -76,6 +77,7 @@ async function searchImages(params) {
     });
   }
 }
+//console.log(response.data);
 
 function renderImages(hits) {
   const gallery = document.querySelector('.gallery');
@@ -108,6 +110,6 @@ function renderImages(hits) {
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
-  await searchImages();
+  let { hits, totalHits } = await searchImages();
   renderImages(hits);
 });
