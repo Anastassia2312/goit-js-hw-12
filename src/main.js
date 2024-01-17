@@ -32,8 +32,18 @@ function hideLoader() {
 }
 //loader.classList.add('hidden');
 
+const scrollPage = () => {
+  const galleryItem = document.querySelector('.gallery-item');
+  const galleryItemHeight = galleryItem.getBoundingClientRect().height;
+  window.scrollBy({
+    top: galleryItemHeight * 2,
+    behavior: 'smooth',
+  });
+};
+
 loadMoreBtn.addEventListener('click', async () => {
-  let { hits, totalHits } = await searchImages();
+  scrollPage();
+  let { hits, totalHits } = await searchImages(searchInput.value);
   renderImages(hits);
 
   const totalPages = Math.ceil(totalHits / perPage);
@@ -46,14 +56,14 @@ loadMoreBtn.addEventListener('click', async () => {
 
 let searchParamsObj = {
   key: '41575459-699006cd61f4fecce9ea2d52d',
-  q: '',
+  q: 'cat',
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
 };
 
 async function searchImages(params) {
-  searchParamsObj.q = params;
+  //searchParamsObj.q = params;
   const searchParams = new URLSearchParams(searchParamsObj);
   showLoader();
   try {
@@ -110,6 +120,7 @@ function renderImages(hits) {
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
-  let { hits, totalHits } = await searchImages();
+  let { hits, totalHits } = await searchImages(searchInput.value);
   renderImages(hits);
+  scrollPage();
 });
