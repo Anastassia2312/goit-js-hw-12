@@ -12,6 +12,11 @@ const form = document.querySelector('.img-information');
 const searchInput = document.querySelector('.input-img-name');
 const loadMoreBtn = document.querySelector('.fetch-more-button');
 
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionDelay: 250,
+  captionsData: 'alt',
+  close: true,
+});
 let page = 1;
 let perPage = 20;
 
@@ -42,10 +47,9 @@ const scrollPage = () => {
 };
 
 loadMoreBtn.addEventListener('click', async () => {
-  scrollPage();
-  let { hits, totalHits } = await searchImages(searchInput.value);
+  let { hits, totalHits } = searchImages(searchInput.value);
   renderImages(hits);
-
+  scrollPage();
   const totalPages = Math.ceil(totalHits / perPage);
   if (page > totalPages) {
     loadMoreBtn.style.display = 'none';
@@ -56,7 +60,7 @@ loadMoreBtn.addEventListener('click', async () => {
 
 let searchParamsObj = {
   key: '41575459-699006cd61f4fecce9ea2d52d',
-  q: 'cat',
+  q: '',
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
@@ -91,11 +95,7 @@ async function searchImages(params) {
 
 function renderImages(hits) {
   const gallery = document.querySelector('.gallery');
-  const lightbox = new SimpleLightbox('.gallery a', {
-    captionDelay: 250,
-    captionsData: 'alt',
-    close: true,
-  });
+
   const renderImages = hits.reduce(
     (html, image) =>
       html +
@@ -112,9 +112,7 @@ function renderImages(hits) {
       </li>`,
     ''
   );
-  gallery.innerHTML = renderImages;
-
-  lightbox.refresh();
+  gallery.insertAdjacentHTML('beforeend', renderImages);
 }
 
 form.addEventListener('submit', async event => {
@@ -122,5 +120,4 @@ form.addEventListener('submit', async event => {
 
   let { hits, totalHits } = await searchImages(searchInput.value);
   renderImages(hits);
-  scrollPage();
 });
