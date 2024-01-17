@@ -113,6 +113,7 @@ function renderImages(hits) {
     ''
   );
   gallery.insertAdjacentHTML('beforeend', renderImages);
+  lightbox.refresh();
 }
 
 form.addEventListener('submit', async event => {
