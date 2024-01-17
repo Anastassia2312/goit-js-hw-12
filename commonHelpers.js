@@ -1,0 +1,12 @@
+import{a as d,i as m,S as y}from"./assets/vendor-bad0427b.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const t of document.querySelectorAll('link[rel="modulepreload"]'))a(t);new MutationObserver(t=>{for(const e of t)if(e.type==="childList")for(const i of e.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&a(i)}).observe(document,{childList:!0,subtree:!0});function o(t){const e={};return t.integrity&&(e.integrity=t.integrity),t.referrerpolicy&&(e.referrerPolicy=t.referrerpolicy),t.crossorigin==="use-credentials"?e.credentials="include":t.crossorigin==="anonymous"?e.credentials="omit":e.credentials="same-origin",e}function a(t){if(t.ep)return;t.ep=!0;const e=o(t);fetch(t.href,e)}})();const u=document.querySelector(".loader"),h=document.querySelector(".img-information");document.querySelector(".input-img-name");const n=document.querySelector(".fetch-more-button");let c=1,g=20;d.create({baseURL:"https://pixabay.com/api/",headers:{"Content-Type":"application/json"},page:c,per_page:g});function L(){u.style.display="block"}function b(){u.style.display="none"}n.addEventListener("click",async()=>{await p(),f(hits),response.totalHits===0&&(n.style.display="none",n.textContent="We're sorry, but you've reached the end of search results.")});let l={key:"41575459-699006cd61f4fecce9ea2d52d",q:"",image_type:"photo",orientation:"horizontal",safesearch:!0};async function p(s){l.q=s;const r=new URLSearchParams(l);L();try{const o=await d.get(`https://pixabay.com/api/?${r}`);return c+=1,c>1&&n.classList.add("visible-btn"),b(),o.data}catch(o){m.error({title:"Error",message:o.message,position:"topRight"})}}function f(s){const r=document.querySelector(".gallery"),o=new y(".gallery a",{captionDelay:250,captionsData:"alt",close:!0}),a=s.reduce((t,e)=>t+`<li class="gallery-item">
+         <a class="image-link" href="${e.largeImageURL}">
+         <img class="images" data-source="${e.largeImageURL}" alt="${e.tags}" src="${e.webformatURL}" width="360" height="200">
+         </a>
+         <div class="information">
+         <p>Likes: ${e.likes}</p>
+         <p>Views: ${e.views}</p>
+         <p>Comments: ${e.comments}</p>
+         <p>Downloads: ${e.downloads}</p>
+        </div>
+      </li>`,"");r.innerHTML=a,o.refresh()}h.addEventListener("submit",async s=>{s.preventDefault(),await p(),f(hits)});
+//# sourceMappingURL=commonHelpers.js.map
