@@ -68,7 +68,7 @@ img {
   border: 5px solid #a29a9a;
   border-bottom-color: #4e75ff;
   border-radius: 50%;
-  display: block;
+  display: none;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
