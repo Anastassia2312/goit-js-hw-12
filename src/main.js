@@ -35,7 +35,6 @@ function showLoader() {
 function hideLoader() {
   loader.style.display = 'none';
 }
-//loader.classList.add('hidden');
 
 const scrollPage = () => {
   const galleryItem = document.querySelector('.gallery-item');
@@ -67,7 +66,7 @@ let searchParamsObj = {
 };
 
 async function searchImages(params) {
-  //searchParamsObj.q = params;
+  searchParamsObj.q = params;
   const searchParams = new URLSearchParams(searchParamsObj);
   showLoader();
   try {
@@ -81,8 +80,6 @@ async function searchImages(params) {
     hideLoader();
 
     return response.data;
-
-    //loader.classList.add('hidden');
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -91,7 +88,6 @@ async function searchImages(params) {
     });
   }
 }
-//console.log(response.data);
 
 function renderImages(hits) {
   const gallery = document.querySelector('.gallery');
