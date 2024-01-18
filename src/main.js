@@ -25,8 +25,6 @@ const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  page: page,
-  per_page: perPage,
 });
 
 function showLoader() {
@@ -46,7 +44,9 @@ const scrollPage = () => {
 };
 
 loadMoreBtn.addEventListener('click', async () => {
-  let { hits, totalHits } = searchImages(searchInput.value);
+  const response = await axios.get(`https://pixabay.com/api/?${searchParams}`);
+  const data = response.data;
+  const totalHits = data.totalHits;
   renderImages(hits);
   scrollPage();
   const totalPages = Math.ceil(totalHits / perPage);
@@ -63,6 +63,8 @@ let searchParamsObj = {
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
+  page: page,
+  per_page: perPage,
 };
 
 async function searchImages(params) {
@@ -70,6 +72,7 @@ async function searchImages(params) {
   const searchParams = new URLSearchParams(searchParamsObj);
   showLoader();
   try {
+    searchParamsObj.page = 1;
     const response = await axios.get(
       `https://pixabay.com/api/?${searchParams}`
     );
