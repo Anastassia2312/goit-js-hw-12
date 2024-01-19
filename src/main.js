@@ -19,7 +19,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
   close: true,
 });
 let page = 1;
-let q;
+let query;
 let perPage = 40;
 
 //loader.style.display = 'block';
@@ -35,7 +35,7 @@ const scrollPage = () => {
   });
 };
 
-async function searchImages(q, page) {
+async function searchImages(query, page) {
   const BASE_URL = 'https://pixabay.com/api/';
   const API_KEY = '41530032-c682b7302a1559a8b9f540776';
 
@@ -43,7 +43,7 @@ async function searchImages(q, page) {
     const response = await axios.get(`${BASE_URL}`, {
       params: {
         key: API_KEY,
-        q,
+        q: query,
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: true,
@@ -51,7 +51,7 @@ async function searchImages(q, page) {
         per_page: perPage,
       },
     });
-    return response;
+    return response.data;
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -62,13 +62,12 @@ async function searchImages(q, page) {
 }
 
 loadMoreBtn.addEventListener('click', async event => {
+  loaderBottom.style.display = 'block';
   loadMoreBtn.style.display = 'none';
   try {
     page += 1;
 
-    const {
-      data: { hits, totalHits },
-    } = await searchImages(q, page);
+    const { hits, totalHits } = await searchImages(query, page);
     const totalPage = Math.ceil(totalHits / perPage);
 
     loadMoreBtn.style.display = 'block';
@@ -94,17 +93,15 @@ form.addEventListener('submit', async event => {
   loader.style.display = 'block';
   loadMoreBtn.style.display = 'none';
   page = 1;
-  q = event.target.elements.search.value.trim();
+  query = event.target.elements.search.value.trim();
 
-  if (q === '') {
+  if (query === '') {
     loadMoreBtn.style.display = 'none';
     return;
   }
 
   try {
-    const {
-      data: { hits, totalHits },
-    } = await searchImages(q, page);
+    const { hits, totalHits } = await searchImages(query, page);
 
     if (hits.length > 0) {
       loader.style.display = 'none';
@@ -123,7 +120,7 @@ form.addEventListener('submit', async event => {
       loadMoreBtn.style.display = 'none';
     }
   } catch (error) {
-    console.log('Error');
+    console.log(error.message);
   } finally {
     loader.style.display = 'none';
     event.target.reset();
