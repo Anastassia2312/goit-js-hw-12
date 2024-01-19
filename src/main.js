@@ -90,6 +90,7 @@ loadMoreBtn.addEventListener('click', async event => {
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
+  gallery.innerHTML = '';
   loader.style.display = 'block';
   loadMoreBtn.style.display = 'none';
   page = 1;
@@ -97,7 +98,11 @@ form.addEventListener('submit', async event => {
 
   if (query === '') {
     loadMoreBtn.style.display = 'none';
-    return;
+    loader.style.display = 'none';
+    return iziToast.warning({
+      position: 'topRight',
+      message: 'Please, type something in the search!',
+    });
   }
 
   try {
