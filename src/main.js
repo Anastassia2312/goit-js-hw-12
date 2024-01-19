@@ -18,7 +18,7 @@ const lightbox = new SimpleLightbox('.gallery a', {
   close: true,
 });
 let page = 1;
-let perPage = 20;
+let perPage = 40;
 
 const instance = axios.create({
   baseURL: 'https://pixabay.com/api/',
@@ -43,20 +43,6 @@ const scrollPage = () => {
   });
 };
 
-loadMoreBtn.addEventListener('click', async () => {
-  const response = await axios.get(`https://pixabay.com/api/?${searchParams}`);
-  const data = response.data;
-  const totalHits = data.totalHits;
-  renderImages(hits);
-  scrollPage();
-  const totalPages = Math.ceil(totalHits / perPage);
-  if (page > totalPages) {
-    loadMoreBtn.style.display = 'none';
-    loadMoreBtn.textContent =
-      "We're sorry, but you've reached the end of search results.";
-  }
-});
-
 let searchParamsObj = {
   key: '41575459-699006cd61f4fecce9ea2d52d',
   q: '',
@@ -67,9 +53,10 @@ let searchParamsObj = {
   per_page: perPage,
 };
 
+const searchParams = new URLSearchParams(searchParamsObj);
 async function searchImages(params) {
   searchParamsObj.q = params;
-  const searchParams = new URLSearchParams(searchParamsObj);
+
   showLoader();
   try {
     searchParamsObj.page = 1;
@@ -115,9 +102,26 @@ function renderImages(hits) {
   lightbox.refresh();
 }
 
+loadMoreBtn.addEventListener('click', async () => {
+  let { hits, totalHits } = await searchImages(q, page);
+  //renderImages(hits);
+  scrollPage();
+  const totalPages = Math.ceil(totalHits / perPage);
+});
+
 form.addEventListener('submit', async event => {
   event.preventDefault();
 
-  let { hits, totalHits } = await searchImages(searchInput.value);
+  page = 1;
+
+  const userValue = searchInput.value;
   renderImages(hits);
+  if (page === totalPages) {
+    loadMoreBtn.style.display = 'none';
+    iziToast.error({
+      title: 'Message',
+      message: "We're sorry, but you've reached the end of search results.",
+      position: 'topRight',
+    });
+  }
 });
