@@ -1,4 +1,3 @@
-'use strict';
 import axios from 'axios';
 import iziToast from 'izitoast';
 // Додатковий імпорт стилів
@@ -8,9 +7,11 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const loader = document.querySelector('.loader');
+const loaderBottom = document.querySelector('.loader-before-button');
 const form = document.querySelector('.img-information');
 const searchInput = document.querySelector('.input-img-name');
 const loadMoreBtn = document.querySelector('.fetch-more-button');
+const gallery = document.querySelector('.gallery');
 
 const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
@@ -18,21 +19,12 @@ const lightbox = new SimpleLightbox('.gallery a', {
   close: true,
 });
 let page = 1;
+let q;
 let perPage = 40;
 
-const instance = axios.create({
-  baseURL: 'https://pixabay.com/api/',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+//loader.style.display = 'block';
 
-function showLoader() {
-  loader.style.display = 'block';
-}
-function hideLoader() {
-  loader.style.display = 'none';
-}
+//loader.style.display = 'none';
 
 const scrollPage = () => {
   const galleryItem = document.querySelector('.gallery-item');
@@ -43,33 +35,23 @@ const scrollPage = () => {
   });
 };
 
-let searchParamsObj = {
-  key: '41575459-699006cd61f4fecce9ea2d52d',
-  q: '',
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  page: page,
-  per_page: perPage,
-};
+async function searchImages(q, page) {
+  const BASE_URL = 'https://pixabay.com/api/';
+  const API_KEY = '41530032-c682b7302a1559a8b9f540776';
 
-const searchParams = new URLSearchParams(searchParamsObj);
-async function searchImages(params) {
-  searchParamsObj.q = params;
-
-  showLoader();
   try {
-    searchParamsObj.page = 1;
-    const response = await axios.get(
-      `https://pixabay.com/api/?${searchParams}`
-    );
-    page += 1;
-    if (page > 1) {
-      loadMoreBtn.classList.add('visible-btn');
-    }
-    hideLoader();
-
-    return response.data;
+    const response = await axios.get(`${BASE_URL}`, {
+      params: {
+        key: API_KEY,
+        q,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        page: page,
+        per_page: perPage,
+      },
+    });
+    return response;
   } catch (error) {
     iziToast.error({
       title: 'Error',
@@ -79,9 +61,76 @@ async function searchImages(params) {
   }
 }
 
-function renderImages(hits) {
-  const gallery = document.querySelector('.gallery');
+loadMoreBtn.addEventListener('click', async event => {
+  loadMoreBtn.style.display = 'none';
+  try {
+    page += 1;
 
+    const {
+      data: { hits, totalHits },
+    } = await searchImages(q, page);
+    const totalPage = Math.ceil(totalHits / perPage);
+
+    loadMoreBtn.style.display = 'block';
+    renderImages(hits);
+    scrollPage();
+
+    if (page === totalPage) {
+      loadMoreBtn.style.display = 'none';
+      return iziToast.info({
+        position: 'topRight',
+        message: `We're sorry, but you've reached the end of search results.`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loaderBottom.style.display = 'none';
+  }
+});
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  loader.style.display = 'block';
+  loadMoreBtn.style.display = 'none';
+  page = 1;
+  q = event.target.elements.search.value.trim();
+
+  if (q === '') {
+    loadMoreBtn.style.display = 'none';
+    return;
+  }
+
+  try {
+    const {
+      data: { hits, totalHits },
+    } = await searchImages(q, page);
+
+    if (hits.length > 0) {
+      loader.style.display = 'none';
+      renderImages(hits);
+      loadMoreBtn.style.display = 'block';
+    } else {
+      gallery.innerHTML = '';
+      iziToast.error({
+        position: 'topRight',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+      });
+    }
+
+    if (totalHits <= perPage) {
+      loadMoreBtn.style.display = 'none';
+    }
+  } catch (error) {
+    console.log('Error');
+  } finally {
+    loader.style.display = 'none';
+    event.target.reset();
+  }
+});
+
+function renderImages(hits = []) {
   const renderImages = hits.reduce(
     (html, image) =>
       html +
@@ -101,27 +150,3 @@ function renderImages(hits) {
   gallery.insertAdjacentHTML('beforeend', renderImages);
   lightbox.refresh();
 }
-
-loadMoreBtn.addEventListener('click', async () => {
-  let { hits, totalHits } = await searchImages(q, page);
-  //renderImages(hits);
-  scrollPage();
-  const totalPages = Math.ceil(totalHits / perPage);
-});
-
-form.addEventListener('submit', async event => {
-  event.preventDefault();
-
-  page = 1;
-
-  const userValue = searchInput.value;
-  renderImages(hits);
-  if (page === totalPages) {
-    loadMoreBtn.style.display = 'none';
-    iziToast.error({
-      title: 'Message',
-      message: "We're sorry, but you've reached the end of search results.",
-      position: 'topRight',
-    });
-  }
-});
